@@ -1,47 +1,119 @@
-let nombres = [
-  {
-    id: 1,
-    name: 'eliud'
-  },
-  {
-    id: 2,
-    name: 'luis'
-  }
-]
+const Todo = require('./collections/To-dos')
+const ContacList = require('./collections/Contactlist')
 
 const express = require('express')
 const cors = require('cors')
 const app = express()
+const mongoose = require('mongoose')
+
+mongoose.connect('mongodb+srv://15141731:15141731@cluster0.k0b60.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+  useCreateIndex: true
+});
+
 app.use(express.json())
 
 app.use(cors())
 
-app.get('/', (req, res) => {
-  const foo = 'hola'
+app.get('/get-todos', async (req, res) => {
+  try {
+    const todoList = await Todo.find({})
 
-  res.send(foo)
+    res.send(todoList)
+  } catch (error) {
+    res.send(error)
+  }
 })
 
-app.post('/add-name', (req, res) => {
-  const resp = req.body
-  const newdata = [...nombres, resp]
+app.get('/get-todo/:id', async (req, res) => {
+  try {
+    const id = req.params.id
+    const todoList = await Todo.findOne({_id: id})
 
-  res.send(newdata)
+    res.send(todoList)
+  } catch (error) {
+    res.send(error)
+  }
 })
 
-app.put('/edite-name/:id', (req, res) => {
-  const resp = req.body
-  const id = req.params.id
+app.post('/post-todo', async (req, res) => {
+  try {
+    const todo = req.body
+    const newTodo = await Todo.create(todo)
 
-  const newdata = nombres.map((iter) => iter.id === +id ? { ...iter, name: resp.name } : iter)
-  res.send(newdata)
+    res.send(newTodo)
+  } catch (error) {
+    res.send(error)
+  }
 })
 
-app.delete('/delete-name/:id', (req, res) => {
-  const id = req.params.id
-  const deletedData = nombres.filter((iter) => iter.id !== +id)
+app.put('/put-todo/:id', async (req, res) => {
+  try {
+    const dataToEdit = req.body
+    const id = req.params.id
+    const todoEdited = await Todo.findByIdAndUpdate({ _id: id }, { $set: dataToEdit}, {new: true})
 
-  res.send(deletedData)
+    res.send(todoEdited)
+  } catch (error) {
+    res.send(error)
+  }
+})
+
+app.delete('/delete-todo/:id', async (req, res) => {
+  try {
+    const id = req.params.id
+    const taskDeleted = await Todo.findByIdAndDelete({ _id: id})
+
+    res.send(taskDeleted)
+  } catch (error) {
+    res.send(error)
+  }
+})
+
+app.get('/get-contactLists', async (req, res) => {
+  try {
+    const todoList = await ContacList.find({})
+
+    res.send(todoList)
+  } catch (error) {
+    res.send(error)
+  }
+})
+
+app.post('/post-contactList', async (req, res) => {
+  try {
+    const todo = req.body
+    const newTodo = await ContacList.create(todo)
+
+    res.send(newTodo)
+  } catch (error) {
+    res.send(error)
+  }
+})
+
+app.put('/put-contactList/:id', async (req, res) => {
+  try {
+    const dataToEdit = req.body
+    const id = req.params.id
+    const todoEdited = await ContacList.findByIdAndUpdate({ _id: id }, { $set: dataToEdit }, { new: true })
+
+    res.send(todoEdited)
+  } catch (error) {
+    res.send(error)
+  }
+})
+
+app.delete('/delete-contactList/:id', async (req, res) => {
+  try {
+    const id = req.params.id
+    const taskDeleted = await ContacList.findByIdAndDelete({ _id: id })
+
+    res.send(taskDeleted)
+  } catch (error) {
+    res.send(error)
+  }
 })
 
 app.listen(5000, () => {
@@ -51,3 +123,4 @@ app.listen(5000, () => {
 //Express.js
 //Nodemon
 //Cors
+//Mongoose
